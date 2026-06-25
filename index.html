@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spark 30-Day Sprint — FW 工作說明（給協助成員）</title>
+<style>
+  :root{--ink:#1c2128;--blue:#1F4E78;--line:#d8dee6;--bg:#fcfdfe;--green:#5a9e3a;--amber:#cf9d10;--red:#c4622f;}
+  *{box-sizing:border-box;}
+  body{font-family:"Microsoft JhengHei","PingFang TC","Noto Sans CJK TC",sans-serif;
+       color:var(--ink);line-height:1.6;margin:0;background:var(--bg);font-size:15px;}
+  .wrap{max-width:980px;margin:0 auto;padding:30px 32px 70px;}
+  h1{color:var(--blue);font-size:24px;margin:0 0 2px;}
+  .meta{color:#778;font-size:12.5px;margin:0 0 16px;}
+  .intro{background:#eef3f8;border:1px solid #c7d7e6;border-radius:8px;padding:13px 18px;margin:0 0 10px;font-size:13.5px;color:#345;}
+  .intro b{color:var(--blue);}
+  .legend{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 22px;font-size:12px;}
+  .legend span{padding:3px 10px;border-radius:20px;color:#fff;font-weight:600;}
+  .lg-do{background:var(--green);} .lg-long{background:var(--amber);} .lg-eval{background:#2f6fb0;} .lg-swap{background:var(--red);}
+
+  .card{border:1px solid var(--line);border-radius:11px;overflow:hidden;margin-bottom:18px;box-shadow:0 1px 4px rgba(0,0,0,.05);background:#fff;}
+  .card .top{padding:12px 18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--line);}
+  .card .num{font-weight:800;font-size:14px;color:#fff;background:var(--blue);border-radius:7px;padding:3px 10px;}
+  .card .ttl{font-weight:700;font-size:17px;color:#1c2b3a;flex:1;min-width:200px;}
+  .tag{font-size:11.5px;font-weight:700;color:#fff;border-radius:20px;padding:3px 11px;}
+  .t-do{background:var(--green);} .t-long{background:var(--amber);} .t-eval{background:#2f6fb0;} .t-swap{background:var(--red);}
+  .card .body{padding:6px 18px 16px;}
+  .row{display:grid;grid-template-columns:128px 1fr;gap:6px 14px;padding:9px 0;border-bottom:1px dashed #e6ebf1;}
+  .row:last-child{border-bottom:none;}
+  .row .k{font-size:12.5px;font-weight:700;color:#5a6b7d;padding-top:1px;}
+  .row .v{font-size:14px;color:#243240;}
+  .v ul{margin:3px 0 0;padding-left:18px;} .v li{margin:3px 0;}
+  .prod{display:inline-block;font-size:12px;font-weight:600;color:#1F4E78;background:#eaf1f8;border:1px solid #d3e0ee;border-radius:5px;padding:1px 8px;margin:2px 4px 2px 0;}
+  code{background:#eef1f4;padding:1px 6px;border-radius:4px;font-size:12.5px;color:#a3306a;}
+  .who{display:inline-block;font-size:12px;font-weight:700;border-radius:5px;padding:2px 9px;margin:2px 4px 2px 0;background:#f0f6ee;color:#3d6b29;border:1px solid #c6e0b8;}
+  .who.q{background:#fbf3e3;color:#8a6500;border-color:#e6cf90;}
+  .deadline{color:#a52714;font-weight:700;}
+  .note{background:#fff7e6;border-left:4px solid #e0a93a;border-radius:0 6px 6px 0;padding:8px 13px;margin-top:8px;font-size:13px;color:#6a5418;}
+
+  h2{color:var(--blue);font-size:18px;margin:30px 0 10px;padding-bottom:6px;border-bottom:2px solid #e6edf4;}
+  .foot{margin-top:34px;padding-top:14px;border-top:1px solid var(--line);color:#94a0ad;font-size:12px;text-align:right;}
+  .pillrow{font-size:12.5px;color:#667;margin:-4px 0 18px;}
+
+  /* ---- 互動派工控制區 ---- */
+  .assign{background:#f7fafc;border:1px solid #dce6ef;border-radius:8px;padding:10px 12px;}
+  .assign .lbl{font-size:11.5px;font-weight:700;color:#5a6b7d;margin-bottom:6px;display:block;}
+  .people{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:9px;}
+  .people .chip{font-size:13px;font-weight:700;border:1.5px solid #c3cfdb;background:#fff;color:#5a6b7d;
+                border-radius:20px;padding:4px 14px;cursor:pointer;user-select:none;transition:all .12s;}
+  .people .chip:hover{border-color:#7ba0c4;}
+  .people .chip.on{background:#1F4E78;border-color:#1F4E78;color:#fff;box-shadow:0 1px 3px rgba(31,78,120,.3);}
+  .ctl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .ctl label{font-size:11.5px;font-weight:700;color:#5a6b7d;}
+  .ctl select{font-size:13px;font-family:inherit;padding:5px 9px;border:1.5px solid #c3cfdb;border-radius:7px;background:#fff;color:#243240;cursor:pointer;}
+  .ctl select:focus{outline:none;border-color:#1F4E78;}
+  .ctl .st{font-size:12px;font-weight:700;border-radius:20px;padding:3px 11px;}
+  .st-todo{background:#eef1f4;color:#5a6b7d;}
+  .st-prog{background:#fff2cc;color:#8a6500;}
+  .st-done{background:#e2f0d9;color:#3d6b29;}
+  .st-block{background:#fde2dd;color:#a52714;}
+  .hint-orig{font-size:11.5px;color:#94a0ad;margin-top:7px;}
+  .reply{margin-top:9px;}
+  .reply .lbl{font-size:11.5px;font-weight:700;color:#5a6b7d;margin-bottom:5px;display:block;}
+  .reply textarea{width:100%;min-height:60px;font-family:inherit;font-size:13.5px;line-height:1.5;color:#243240;
+                  border:1.5px solid #c3cfdb;border-radius:7px;padding:8px 10px;resize:vertical;background:#fffdf8;}
+  .reply textarea:focus{outline:none;border-color:#1F4E78;background:#fff;}
+  .reply textarea::placeholder{color:#b3bdc8;}
+  .savebar{position:sticky;top:0;z-index:20;background:#1F4E78;color:#fff;border-radius:0 0 10px 10px;
+           padding:8px 16px;font-size:12.5px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;box-shadow:0 2px 6px rgba(0,0,0,.15);}
+  .savebar b{color:#ffd86b;}
+  .savebar .saved{margin-left:auto;opacity:.85;}
+  .savebar button{font-family:inherit;font-size:12px;font-weight:700;background:rgba(255,255,255,.15);color:#fff;
+                  border:1px solid rgba(255,255,255,.4);border-radius:6px;padding:4px 12px;cursor:pointer;}
+  .savebar button:hover{background:rgba(255,255,255,.28);}
+  @media print{.savebar,.people .chip:not(.on){display:none;}}
+</style>
+</head>
+<body>
+<div class="savebar">
+  📌 <b>填寫內容自動保存</b>，多人可同時填、自動彙整。
+  <span class="saved" id="saveStatus">載入中…</span>
+  <button id="exportBtn">匯出 JSON</button>
+  <button id="resetBtn">清除本機暫存</button>
+</div>
+<div class="wrap">
+
+<h1>Spark 30-Day Sprint — FW 工作說明</h1>
+<p class="meta">Teo / FW · 2026-06-24 · 給協助成員的任務說明（每項：問題主題 / 涉及產品 / 要做什麼）</p>
+
+<div class="intro">
+<b>給看這份文件的你：</b>下面每一張卡片是一件 FW 在這次 Spark Sprint 要處理的事。每張都說明「<b>問題是什麼</b>」「<b>哪些產品受影響</b>」「<b>你實際要做什麼</b>」。
+每張卡片底部可<b>點選負責人（可複選）＋設定狀態</b>，選擇會自動記住。正式分配以 Teo 點選為準。
+</div>
+<div class="legend">
+  <span class="lg-do">✅ 30天能做</span>
+  <span class="lg-eval">📋 評估（不寫 code）</span>
+  <span class="lg-long">🔶 長期 / 起步</span>
+  <span class="lg-swap">🚨 換料（硬性時程）</span>
+</div>
+
+<h2>A. 連線（Jun Action Item #1）</h2>
+<p class="pillrow">主軸：把「連不上 / 連了又斷」止血。目標 0.1% 是長期目標，30 天交「可量測的改善 + baseline」。</p>
+
+<!-- 1 -->
+<div class="card">
+  <div class="top">
+    <span class="num">1</span>
+    <span class="ttl">BLE 連線止血（高頻失敗 + auto-reconnect）</span>
+    <span class="tag t-do">✅ 30天能做</span>
+  </div>
+  <div class="body">
+    <div class="row"><div class="k">問題主題</div><div class="v">Spark 用 BLE 連手機時，常連不上或連上後掉線；目前量測基準 <b>BLE E2E 44 個指令裡有 31 個會 timeout</b>（anchor 票 <code>FWP-785</code>）。連線根因從來沒被專門投入修過。</div></div>
+    <div class="row"><div class="k">涉及產品</div><div class="v"><span class="prod">Reactor BLE</span> 為主，連線層共用，改善外溢到其他 Spark 機種。</div></div>
+    <div class="row"><div class="k">要做什麼</div><div class="v">
+      <ul>
+        <li>先<b>量 baseline</b>：跑 44 指令 E2E，記錄目前成功率（這是要交給 PM 的數字依據）。</li>
+        <li>挑<b>高頻失敗的子集</b>先修（不是一次修全部），讓成功率有可量測的提升。</li>
+        <li>加 <b>auto-reconnect</b>：掉線後自動重連，不要逼使用者手動重開。</li>
+      </ul>
+      <div class="note">這條<b>不承諾 0.1%</b>。0.1% 要完整 BT 重構 + 跨「機型×OS」回歸，是跨季度工程。30 天只交「子集止血 + baseline」。</div>
+    </div></div>
+    <div class="row"><div class="k">負責人 / 狀態</div><div class="v">
+      <div class="assign" data-task="t1">
+        <span class="lbl">負責人（可複選）</span>
+        <div class="people"></div>
+        <div class="ctl"><label>狀態</label><span class="status-slot"></span></div>
+        <div class="reply">
+          <span class="lbl">開發人員回覆</span>
+          <textarea class="reply-input" placeholder="在此填寫進度、問題、需要協助的地方…（會自動保存）"></textarea>
+        </div>
+      </div>
+    </div></div>
+  </div>
+</div>
+
+<!-- 2 -->
+<div class="card">
+  <div class="top">
+    <span class="num">2</span>
+    <span class="ttl">Control X auto-reconnect（提前交付）</span>
+    <span class="tag t-do">✅ 30天能做</span>
+  </div>
+  <div class="body">
+    <div class="row"><div class="k">問題主題</div><div class="v">Control X（腳踏控制器）目前<b>不會自動重連</b>，斷了要手動處理。這原本 roadmap 排到 <b>Q1 2027</b>（約 70% 會再延），這次 sprint 提前做＝實打實的亮點。</div></div>
+    <div class="row"><div class="k">涉及產品</div><div class="v"><span class="prod">Control X</span> ＋ App（雙邊合作）。</div></div>
+    <div class="row"><div class="k">要做什麼</div><div class="v">
+      <ul>
+        <li>FW 端實作 Control X 斷線後的自動重連邏輯。</li>
+        <li>跟 App 對接重連的狀態流（什麼時候觸發、UI 怎麼顯示）。</li>
+      </ul>
+      <div class="note">附帶好處：Control X 延遲 / 卡頓（SA-857、SA-1008 等）多半是 BT 穩定度的下游問題，連線穩了會順帶部分改善。</div>
+    </div></div>
+    <div class="row"><div class="k">負責人 / 狀態</div><div class="v">
+      <div class="assign" data-task="t2">
+        <span class="lbl">負責人（可複選）</span>
+        <div class="people"></div>
+        <div class="ctl"><label>狀態</label><span class="status-slot"></span></div>
+        <div class="reply">
+          <span class="lbl">開發人員回覆</span>
+          <textarea class="reply-input" placeholder="在此填寫進度、問題、需要協助的地方…（會自動保存）"></textarea>
+        </div>
+      </div>
+    </div></div>
+  </div>
+</div>
+
+<!-- 3 -->
+<div class="card">
+  <div class="top">
+    <span class="num">3</span>
+    <span class="ttl">Gen-1 Spark 直連 pairing</span>
+    <span class="tag t-do">✅ 30天能做</span>
+  </div>
+  <div class="body">
+    <div class="row"><div class="k">問題主題</div><div class="v">第一代 Spark（Gen-1）<b>今天沒有直連配對的支援</b>，Android 連不回 Gen-1 硬體（<code>SA-2794</code>）。從無到有把它做出來。</div></div>
+    <div class="row"><div class="k">涉及產品</div><div class="v"><span class="prod">Gen-1 Spark</span> ＋ App（雙邊合作）。</div></div>
+    <div class="row"><div class="k">要做什麼</div><div class="v">
+      <ul>
+        <li>FW 端建立 Gen-1 的直連 pairing 流程。</li>
+        <li>對接 App 完成配對 → 連線 → 重連的完整路徑，解掉 SA-2794。</li>
+      </ul>
+    </div></div>
+    <div class="row"><div class="k">負責人 / 狀態</div><div class="v">
+      <div class="assign" data-task="t3">
+        <span class="lbl">負責人（可複選）</span>
+        <div class="people"></div>
+        <div class="ctl"><label>狀態</label><span class="status-slot"></span></div>
+        <div class="reply">
+          <span class="lbl">開發人員回覆</span>
+          <textarea class="reply-input" placeholder="在此填寫進度、問題、需要協助的地方…（會自動保存）"></textarea>
+        </div>
+      </div>
+    </div></div>
+  </div>
+</div>
+
+<h2>B. 韌體更新（Jun Action Item #2、#3）</h2>
+<p class="pillrow">主軸：降低「更新失敗」客訴。30 天交 updater 小修 + 一份硬體可行性評估；不在上市機上重寫更新路徑（變磚風險）。</p>
+
+<!-- 4 -->
+<div class="card">
+  <div class="top">
+    <span class="num">4</span>
+    <span class="ttl">更新工具小修：requiresUpdate() 防重刷 + 刷完驗證</span>
+    <span class="tag t-do">✅ 30天能做</span>
+  </div>
+  <div class="body">
+    <div class="row"><div class="k">問題主題</div><div class="v">桌面更新工具 <code>ReactorFwUpdater</code> 裡 <code>requiresUpdate()</code> <b>永遠回傳 true</b> → 裝置明明已是最新版，工具還是<b>再刷一次</b>；而且刷完<b>不會驗證</b>有沒有成功。（由 <code>pg-fw-update-agent</code> 分析挖出。）</div></div>
+    <div class="row"><div class="k">涉及產品</div><div class="v"><span class="prod">ReactorFwUpdater</span>（Gen-1 USB 更新工具，C/C++ + JUCE + dfu-util + esptool）。打到的票：<code>STFS-491</code>（工具起不來）、<code>STFS-492</code>（舊 FW 無法更新）。</div></div>
+    <div class="row"><div class="k">要做什麼</div><div class="v">
+      <ul>
+        <li>修 <code>requiresUpdate()</code> 邏輯：<b>已是最新版就不要再刷</b>。</li>
+        <li>在 <code>ReactorFwUpdater</code> 加 <b>post-flash verify</b>：刷完比對確認真的寫成功。</li>
+      </ul>
+      <div class="note">範圍小、<b>不碰更新架構</b>、低風險。便宜但直接降客訴，所以排進 30 天。</div>
+    </div></div>
+    <div class="row"><div class="k">負責人 / 狀態</div><div class="v">
+      <div class="assign" data-task="t4">
+        <span class="lbl">負責人（可複選）</span>
+        <div class="people"></div>
+        <div class="ctl"><label>狀態</label><span class="status-slot"></span></div>
+        <div class="reply">
+          <span class="lbl">開發人員回覆</span>
+          <textarea class="reply-input" placeholder="在此填寫進度、問題、需要協助的地方…（會自動保存）"></textarea>
+        </div>
+      </div>
+    </div></div>
+  </div>
+</div>
+
+<!-- 5 -->
+<div class="card">
+  <div class="top">
+    <span class="num">5</span>
+    <span class="ttl">更新流程 UX 可行性評估（unified app / web flasher）</span>
+    <span class="tag t-eval">📋 評估・不寫 code</span>
+  </div>
+  <div class="body">
+    <div class="row"><div class="k">問題主題</div><div class="v">PM 想做「<b>unified app</b>（一個 app 統一更新所有 Spark 產品）」或「<b>web flasher</b>（瀏覽器一鍵更新）」。<b>App / web 只是寫介面的人</b>；更新最後是把 image 透過某通道寫進 MCU flash，<b>這個通道與寫入方式由硬體決定，App 改不了</b>。所以要 FW 回答「底層硬體到底支不支援、天花板在哪」。</div></div>
+    <div class="row"><div class="k">涉及產品</div><div class="v">全 Spark 更新線：<span class="prod">Reactor Gen-2</span><span class="prod">Spark 40/MINI/GO</span><span class="prod">Spark 2/EDGE/Pedal</span><span class="prod">Gen-1</span><span class="prod">Control X / NEO</span></div></div>
+    <div class="row"><div class="k">要做什麼<br>（FW 要給的資料）</div><div class="v">
+      <b>一份評估文件，不是 code。</b>把這幾件事填出來：
+      <ul>
+        <li><b>① 每個產品用什麼通道更新</b>：Reactor Gen-2＝OTA-over-WiFi（app 只觸發 <code>enterFirmwareUpdateMode</code>＋配 WiFi，裝置自己拉 image）；Gen-1＝USB <code>ReactorFwUpdater</code>；舊的 40/MINI/GO/NEO＝Python-2 BT「Actions SDK」路徑。<b>結論點：這些根本不是同一套機制 → 「真正一包打通」先天就分裂。</b></li>
+        <li><b>② web flasher 可不可行</b>：走瀏覽器 WebUSB / WebSerial。哪些產品的 DFU 介面瀏覽器抓得到？哪些需要 driver（libwdi/WinUSB，瀏覽器裝不了）→ 直接不可行？走 BT「Actions SDK」的舊機種瀏覽器完全碰不到 → 排除。</li>
+        <li><b>③ BLE OTA 的硬體天花板</b>（若想無線一鍵更新）：BLE 實際吞吐 ≈ 多少 KB/s、刷一包 MB image 要幾分鐘？中途斷線會不會<b>變磚</b>？有沒有 atomic / 復原模式當安全網？</li>
+        <li><b>④ 一句話結論</b>（PM 只看這個）：例如「統一入口可行，但底層仍是 3 套機制，無法真正一包打通；web flasher 對 A/B 可行、對 C/D 因 driver/BT 不可行；BLE 一鍵更新在加安全網前不建議上市機。」</li>
+      </ul>
+    </div></div>
+    <div class="row"><div class="k">負責人 / 狀態</div><div class="v">
+      <div class="assign" data-task="t5">
+        <span class="lbl">負責人（可複選）</span>
+        <div class="people"></div>
+        <div class="ctl"><label>狀態</label><span class="status-slot"></span></div>
+        <div class="reply">
+          <span class="lbl">開發人員回覆</span>
+          <textarea class="reply-input" placeholder="在此填寫進度、問題、需要協助的地方…（會自動保存）"></textarea>
+        </div>
+      </div>
+    </div></div>
+  </div>
+</div>
+
+<h2>C. 長期 / 起步（方向對但 &gt; 30 天）</h2>
+
+<!-- 6 -->
+<div class="card">
+  <div class="top">
+    <span class="num">6</span>
+    <span class="ttl">連線 / 更新失敗率「真正逼近 0.1%」</span>
+    <span class="tag t-long">🔶 跨季度目標</span>
+  </div>
+  <div class="body">
+    <div class="row"><div class="k">問題主題</div><div class="v">這是 Jun Action Item ①② 開的<b>最終目標</b>（連線失敗率、更新失敗率都壓到千次僅一錯）。但<b>不是 30 天能達成的任務</b>——以現況 BLE E2E 44 指令 31 timeout、連線根因從未專門投入，距 0.1% 仍需完整重構。</div></div>
+    <div class="row"><div class="k">涉及產品</div><div class="v"><span class="prod">全 Spark 連線 + OTA 線</span></div></div>
+    <div class="row"><div class="k">要做什麼</div><div class="v">
+      <ul>
+        <li>需<b>完整 BT stack 重構</b> + 跨「機型 × OS」回歸測試 → 屬<b>跨季度工程</b>。</li>
+        <li>這 30 天<b>不直接做這條</b>；做的是 card 1（止血子集 + 量 baseline），把它當這個長期目標的第一步。</li>
+        <li>定位：<b>0.1% 是跨季度目標，30 天交「baseline + 可改善幅度」</b>，不在此 sprint 承諾達標。</li>
+      </ul>
+      <div class="note">⚠️ 這張卡是<b>定位用</b>，不是派工任務——它說明「0.1% 去哪了」。真正動手的子任務在 card 1。對應「🚫 不做區：承諾 30 天到 0.1%」。</div>
+    </div></div>
+    <div class="row"><div class="k">負責人 / 狀態</div><div class="v">
+      <div class="assign" data-task="t10">
+        <span class="lbl">負責人（可複選）</span>
+        <div class="people"></div>
+        <div class="ctl"><label>狀態</label><span class="status-slot"></span></div>
+        <div class="reply">
+          <span class="lbl">開發人員回覆</span>
+          <textarea class="reply-input" placeholder="在此填寫進度、問題、需要協助的地方…（會自動保存）"></textarea>
+        </div>
+      </div>
+    </div></div>
+  </div>
+</div>
+
+<!-- 7 -->
+<div class="card">
+  <div class="top">
+    <span class="num">7</span>
+    <span class="ttl">OTA 安全網設計（原子更新 / 復原模式 / 刷後驗證）</span>
+    <span class="tag t-long">🔶 起步・交設計</span>
+  </div>
+  <div class="body">
+    <div class="row"><div class="k">問題主題</div><div class="v">「更新到一半失敗 → 變磚」是 Spark 被罵的痛點之一（近期 <code>RAD-1454</code> OTA 案例已驗證此風險）。根本解是建一張安全網：更新失敗能<b>原子回復</b>、不會半套。</div></div>
+    <div class="row"><div class="k">涉及產品</div><div class="v">全 Spark OTA 線；<span class="prod">MINI 2</span> 的 atomic OTA 知識可外溢成全線藍圖。</div></div>
+    <div class="row"><div class="k">要做什麼</div><div class="v">
+      <ul>
+        <li>這 30 天<b>只交設計 / 藍圖</b>，不上線。</li>
+        <li><b>上線</b>必須走新案 DVT 正規驗證（不能在已上市機上即時改更新路徑）。</li>
+      </ul>
+      <div class="note">⚠️ 這是設計工作，<b>不要</b>在這個 sprint 把它推到使用者裝置。</div>
+    </div></div>
+    <div class="row"><div class="k">負責人 / 狀態</div><div class="v">
+      <div class="assign" data-task="t6">
+        <span class="lbl">負責人（可複選）</span>
+        <div class="people"></div>
+        <div class="ctl"><label>狀態</label><span class="status-slot"></span></div>
+        <div class="reply">
+          <span class="lbl">開發人員回覆</span>
+          <textarea class="reply-input" placeholder="在此填寫進度、問題、需要協助的地方…（會自動保存）"></textarea>
+        </div>
+      </div>
+    </div></div>
+  </div>
+</div>
+
+<!-- 8 -->
+<div class="card">
+  <div class="top">
+    <span class="num">8</span>
+    <span class="ttl">USB updater 方向收斂（三案擇一）</span>
+    <span class="tag t-long">🔶 決策・另立軌道</span>
+  </div>
+  <div class="body">
+    <div class="row"><div class="k">問題主題</div><div class="v">更新工具目前有 <b>3 個互相打架、都沒出貨</b>的方向：① <code>FWP-770</code> 改 Python+PySide6 重寫（Alice，eval 完未動工）② <code>pg-fw-update-agent</code> C++/JUCE8 整併（停在 4/10）③ <code>FWP-722</code> 把 ReactorFwUpdater 交接給 FW team。其中 ①② 技術上是<b>對立</b>的。問題不是沒點子，是<b>分裂</b>。</div></div>
+    <div class="row"><div class="k">涉及產品</div><div class="v"><span class="prod">Spark USB 更新工具全線</span></div></div>
+    <div class="row"><div class="k">要做什麼</div><div class="v">
+      <ul>
+        <li><b>砍掉 / 合併</b>成一個方向（這是 backlog Open Decision #7，Owner: Teo / Alice + Jun）。</li>
+        <li>明文 <b>not in the 30 days</b> —— 不綁 sprint 節奏，另立軌道。</li>
+      </ul>
+    </div></div>
+    <div class="row"><div class="k">負責人 / 狀態</div><div class="v">
+      <div class="assign" data-task="t7">
+        <span class="lbl">負責人（可複選）</span>
+        <div class="people"></div>
+        <div class="ctl"><label>狀態</label><span class="status-slot"></span></div>
+        <div class="reply">
+          <span class="lbl">開發人員回覆</span>
+          <textarea class="reply-input" placeholder="在此填寫進度、問題、需要協助的地方…（會自動保存）"></textarea>
+        </div>
+      </div>
+    </div></div>
+  </div>
+</div>
+
+<h2>D. 全產線換料（🚨 硬性時程・影響量產・需全員支援）</h2>
+<p class="pillrow">這不是 Sprint 範圍，但跟 Sprint 搶同一批 FW 人力、且有出貨時程壓力，列在一起讓大家知道優先序。Ives 主導（#hw-all-hands）。</p>
+
+<!-- 9 -->
+<div class="card">
+  <div class="top">
+    <span class="num">9</span>
+    <span class="ttl">PSRAM 換料測試韌體</span>
+    <span class="tag t-swap">🚨 換料</span>
+  </div>
+  <div class="body">
+    <div class="row"><div class="k">問題主題</div><div class="v">PSRAM <code>IS66WVE1M16EBLL</code> 供貨吃緊，有 P2P 替代料 <code>IS67WV</code>，國光要驗證。</div></div>
+    <div class="row"><div class="k">涉及產品</div><div class="v"><span class="prod">Reactor 50/100</span><span class="prod">Spark 40</span><span class="prod">MINI</span><span class="prod">GO</span><span class="prod">LIVE</span></div></div>
+    <div class="row"><div class="k">要做什麼</div><div class="v">
+      <ul>
+        <li>出 <b>PSRAM 測試韌體</b>：全片讀寫 + speed 壓測，驗替代料可不可用。</li>
+      </ul>
+      <div class="note"><span class="deadline">⚠️ 原訂 6/22 前提供樣品給國光（今天 6/24 已過 → 先跟 Teo 確認目前狀態，可能已交付或逾期）。</span></div>
+    </div></div>
+    <div class="row"><div class="k">負責人 / 狀態</div><div class="v">
+      <div class="assign" data-task="t8">
+        <span class="lbl">負責人（可複選）</span>
+        <div class="people"></div>
+        <div class="ctl"><label>狀態</label><span class="status-slot"></span></div>
+        <div class="reply">
+          <span class="lbl">開發人員回覆</span>
+          <textarea class="reply-input" placeholder="在此填寫進度、問題、需要協助的地方…（會自動保存）"></textarea>
+        </div>
+      </div>
+    </div></div>
+  </div>
+</div>
+
+<!-- 10 -->
+<div class="card">
+  <div class="top">
+    <span class="num">10</span>
+    <span class="ttl">SDRAM 換料：降頻 + 新舊料相容判斷</span>
+    <span class="tag t-swap">🚨 換料</span>
+  </div>
+  <div class="body">
+    <div class="row"><div class="k">問題主題</div><div class="v">SDRAM <code>IS42S16160J</code> <b>無 P2P 替代料</b>，市場僅剩兩款非 P2P（需重做 PCB），速度從 <b>133 → 100MHz</b>。</div></div>
+    <div class="row"><div class="k">涉及產品</div><div class="v"><span class="prod">Spark 2 / 2 Pearl</span><span class="prod">EDGE</span><span class="prod">Pedal</span><span class="prod">MINI 2</span></div></div>
+    <div class="row"><div class="k">要做什麼</div><div class="v">
+      <ul>
+        <li>FW <b>降頻至 100MHz</b>，並做<b>新舊料相容判斷</b>。</li>
+        <li>評估兩款候選料哪款可用，給 green light。</li>
+      </ul>
+      <div class="note">⚠️ 直接波及 <b>MINI 2</b>（Ken 的 DVT 案），這部分需 Ken 參與。</div>
+    </div></div>
+    <div class="row"><div class="k">負責人 / 狀態</div><div class="v">
+      <div class="assign" data-task="t9">
+        <span class="lbl">負責人（可複選）</span>
+        <div class="people"></div>
+        <div class="ctl"><label>狀態</label><span class="status-slot"></span></div>
+        <div class="reply">
+          <span class="lbl">開發人員回覆</span>
+          <textarea class="reply-input" placeholder="在此填寫進度、問題、需要協助的地方…（會自動保存）"></textarea>
+        </div>
+      </div>
+    </div></div>
+  </div>
+</div>
+
+<h2>🚫 明確「不做 / 不在此 sprint」的（避免被誤派）</h2>
+<div class="card"><div class="body" style="padding-top:14px">
+  <div class="row"><div class="k">承諾 30天到 0.1%</div><div class="v">以現況（44 指令 31 timeout、根因未投入）不可行 → 改以「baseline + 可改善幅度」承諾。</div></div>
+  <div class="row"><div class="k">上市機 OTA/bootloader 重寫並上線</div><div class="v">更新路徑出錯＝使用者裝置變磚（RAD-1454 已驗證）。先建安全網、走正規驗證。</div></div>
+  <div class="row"><div class="k">完整 dual-platform BLE 重構</div><div class="v">iOS BT 為封閉 vendored framework（<code>PGMidiDeviceManager</code>），完整重構 &gt; 30 天。</div></div>
+  <div class="row"><div class="k">DFU-over-BLE 更新</div><div class="v">MB 級 image 走不穩 BLE 有變磚風險，且需各產品 bootloader 配合。</div></div>
+  <div class="row"><div class="k">抽 Ken 離 MINI 2 救 Spark</div><div class="v">MINI 2 已進 DVT、是已承諾出貨時程；新平台 OTA 與舊 Spark BLE 非同套程式，抽調無助加速。</div></div>
+  <div class="row"><div class="k">FWP-804 整張</div><div class="v">Jira assignee 雖掛 Teo，但已拆：app 端→Acow / FW 端 fence 在 30 天外。<b>整張不是 FW 的</b>，派工前先澄清票 assignee。</div></div>
+</div></div>
+
+<div class="foot">Teo / FW · 2026-06-24 · 來源：FW_能與不能_盤點_0615、Spark_Sprint_FW_規劃_0615、sprint-backlog-30day（Jun, 6/10）</div>
+
+</div>
+
+<script>
+(function(){
+  var KEY = 'spark-sprint-fw-assign-0624';
+  var PEOPLE = ['Alice','Lio','Ziv','Ken','Teo'];
+  var STATUSES = [
+    {v:'todo',  t:'未開始', c:'st-todo'},
+    {v:'prog',  t:'進行中', c:'st-prog'},
+    {v:'done',  t:'已完成', c:'st-done'},
+    {v:'block', t:'卡住/待確認', c:'st-block'}
+  ];
+
+  // ===== 雲端同步設定 =====
+  // 部署 Google Apps Script Web App 後，把 /exec 網址貼到這裡（留空 = 純本機模式）。
+  var GS_URL = '';   // ← 設好 Anyone 版 Apps Script 後，把 /exec 網址貼這（script.google.com/macros/s/.../exec，不含 a/macros）
+
+  // 載入既有狀態（本機快取，開頁後會被雲端覆蓋）
+  var state = {};
+  try { state = JSON.parse(localStorage.getItem(KEY)) || {}; } catch(e){ state = {}; }
+
+  function saveLocal(){
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){}
+  }
+
+  // 寫雲端：debounce 1.5s，只送整包 state（後端會以 task 為單位 merge）
+  var gsTimer = null;
+  function gsWrite(){
+    if(!GS_URL){ setSaved('已儲存（本機）✓'); return; }
+    clearTimeout(gsTimer);
+    setSaved('儲存中…');
+    gsTimer = setTimeout(function(){
+      fetch(GS_URL, {
+        method:'POST', mode:'no-cors',
+        headers:{'Content-Type':'text/plain'},
+        body: JSON.stringify({action:'merge', state:state})
+      })
+      .then(function(){ setSaved('☁️ 已同步'); })
+      .catch(function(){ setSaved('⚠️ 離線（僅存本機）'); });
+    }, 1500);
+  }
+
+  // 讀雲端：開頁時拉最新，覆蓋本機後重繪
+  function gsRead(cb){
+    if(!GS_URL){ cb(); return; }
+    setSaved('☁️ 讀取雲端…');
+    fetch(GS_URL + '?action=read', {redirect:'follow'})
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        if(data && typeof data==='object'){ state = data; saveLocal(); }
+        cb();
+      })
+      .catch(function(){ setSaved('⚠️ 雲端讀取失敗，用本機資料'); cb(); });
+  }
+
+  function save(){
+    saveLocal();
+    gsWrite();
+  }
+  var savedTimer;
+  function setSaved(msg){
+    var el = document.getElementById('saveStatus');
+    if(!el) return;
+    el.textContent = msg;
+    clearTimeout(savedTimer);
+    var idle = GS_URL ? '☁️ 雲端同步開啟' : '變更已自動保存（本機）';
+    savedTimer = setTimeout(function(){ el.textContent = idle; }, 2500);
+  }
+
+  // ===== 主流程：先讀雲端，再渲染 =====
+  gsRead(function(){ render(); });
+
+  function render(){
+  document.querySelectorAll('.assign').forEach(function(box){
+    var task = box.getAttribute('data-task');
+    if(!state[task]) state[task] = {people:[], status:'todo'};
+    var rec = state[task];
+
+    // 人員按鈕
+    var peopleWrap = box.querySelector('.people');
+    PEOPLE.forEach(function(name){
+      var chip = document.createElement('span');
+      chip.className = 'chip' + (rec.people.indexOf(name)>=0 ? ' on' : '');
+      chip.textContent = name;
+      chip.addEventListener('click', function(){
+        var i = rec.people.indexOf(name);
+        if(i>=0){ rec.people.splice(i,1); chip.classList.remove('on'); }
+        else { rec.people.push(name); chip.classList.add('on'); }
+        save();
+      });
+      peopleWrap.appendChild(chip);
+    });
+
+    // 狀態下拉 + 顯示徽章
+    var slot = box.querySelector('.status-slot');
+    var sel = document.createElement('select');
+    STATUSES.forEach(function(s){
+      var o = document.createElement('option');
+      o.value = s.v; o.textContent = s.t;
+      if(rec.status===s.v) o.selected = true;
+      sel.appendChild(o);
+    });
+    var badge = document.createElement('span');
+    badge.className = 'st';
+    function paintBadge(){
+      var s = STATUSES.find(function(x){return x.v===rec.status;}) || STATUSES[0];
+      badge.className = 'st ' + s.c;
+      badge.textContent = s.t;
+    }
+    sel.addEventListener('change', function(){
+      rec.status = sel.value; paintBadge(); save();
+    });
+    slot.appendChild(sel);
+    slot.appendChild(badge);
+    paintBadge();
+
+    // 開發人員回覆
+    if(typeof rec.reply !== 'string') rec.reply = '';
+    var ta = box.querySelector('.reply-input');
+    if(ta){
+      ta.value = rec.reply;
+      ta.addEventListener('input', function(){
+        rec.reply = ta.value;
+        save();
+      });
+    }
+  });
+  } // end render()
+
+  // 匯出 JSON（人類可讀摘要 + 原始）
+  document.getElementById('exportBtn').addEventListener('click', function(){
+    var titleMap = {};
+    document.querySelectorAll('.card').forEach(function(c){
+      var box = c.querySelector('.assign'); if(!box) return;
+      var t = box.getAttribute('data-task');
+      var ttl = c.querySelector('.ttl'); var num = c.querySelector('.num');
+      titleMap[t] = (num?num.textContent:'') + ' ' + (ttl?ttl.textContent.trim():'');
+    });
+    var lines = ['Spark 30-Day Sprint — FW 派工現況', '匯出時間：' + new Date().toLocaleString(), ''];
+    Object.keys(state).sort().forEach(function(t){
+      var r = state[t];
+      var sObj = STATUSES.find(function(x){return x.v===r.status;});
+      lines.push('【' + (titleMap[t]||t) + '】');
+      lines.push('  負責人：' + (r.people.length? r.people.join('、') : '（未指派）'));
+      lines.push('  狀態：' + (sObj?sObj.t:r.status));
+      if(r.reply && r.reply.trim()){
+        lines.push('  開發人員回覆：');
+        r.reply.trim().split('\n').forEach(function(ln){ lines.push('    ' + ln); });
+      }
+      lines.push('');
+    });
+    var blob = new Blob([lines.join('\n')], {type:'text/plain;charset=utf-8'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'FW派工現況_' + new Date().toISOString().slice(0,10) + '.txt';
+    a.click();
+  });
+
+  // 清除全部（注意：只清本機。雲端資料請在 Google Sheet 手動清，避免誤刪別人的）
+  document.getElementById('resetBtn').addEventListener('click', function(){
+    var msg = GS_URL
+      ? '確定清除「本機」暫存？\n（雲端 Sheet 的資料不會被刪，重整後會再從雲端載回。要清雲端請直接編輯 Google Sheet。）'
+      : '確定清除所有派工與狀態？此動作無法復原。';
+    if(!confirm(msg)) return;
+    localStorage.removeItem(KEY);
+    location.reload();
+  });
+})();
+</script>
+</body>
+</html>
